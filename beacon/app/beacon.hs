@@ -286,14 +286,13 @@ compareMeasurements opts header csvA csvB = do
       (Just outliers)
       csvA
       csvB
-      ( toSlug
-        $ Text.unpack header
-       <> "-"
-       <> (versionA opts).dbAnalyser
-       <> "_vs_"
-       <> (versionB opts).dbAnalyser
-       <> ".png"
-      )
+      $ toSlug (
+      Text.unpack header
+        <> "-"
+        <> (versionA opts).dbAnalyser
+        <> "_vs_"
+        <> (versionB opts).dbAnalyser
+      ) <> ".png"
     where
       -- Given two runs and a column name, return the relative change, sorted in
       -- ascending order.
@@ -446,12 +445,12 @@ runBenchmarks opts InstallInfo { installPath, installedVersion } = do
     unlessM (doesFileExist outfile) run
     pure $ BenchmarkRunDataPath { benchmarkRunDataPath = outfile }
   where
-    outfile = toSlug $
-                "ledger-ops-cost-"
-                <> vToFilePath installedVersion
-                <> "-from_" <> show (analyseFromSlot opts)
-                <> "-nr_blocks_" <> show (numBlocksToProcess opts)
-                <> ".csv"
+    outfile = toSlug (
+      "ledger-ops-cost-"
+        <> vToFilePath installedVersion
+        <> "-from_" <> show (analyseFromSlot opts)
+        <> "-nr_blocks_" <> show (numBlocksToProcess opts)
+      ) <> ".csv"
 
     vToFilePath version =
       version.dbAnalyser <> "-" <> version.compiler
