@@ -21,9 +21,7 @@ jobs:
     strategy:
        fail-fast: false
        matrix:
-         # TODO: Building with version 9.6.2 depends on https://github.com/timbod7/haskell-chart/issues/248
-         # Once haskell-chart/#248 is fixed the `buildable: False` flag has to be removed from `beacon.cabal`.
-         ghc: ["9.2.8"]
+         ghc: ["9.6.3"]
          cabal: ["3.10.1.0"]
          os: [ubuntu-latest]
     env:

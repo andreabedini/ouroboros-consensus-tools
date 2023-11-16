@@ -1,7 +1,7 @@
 {
   inputs = {
     nixpkgs.follows = "haskellNix/nixpkgs-unstable";
-    flake-utils.follows = "haskellNix/flake-utils";
+    flake-utils.url = "github:numtide/flake-utils";
     haskellNix = {
       url = "github:input-output-hk/haskell.nix";
       inputs.hackage.follows = "hackageNix";
@@ -41,18 +41,34 @@
         };
         inherit (pkgs) lib;
 
-        defaultCompiler = "ghc928";
+        defaultCompiler = "ghc963";
         cabalProject = pkgs.haskell-nix.cabalProject' {
           src = ./.;
           compiler-nix-name = defaultCompiler;
           inputMap = {
             "https://input-output-hk.github.io/cardano-haskell-packages" = inputs.CHaP;
           };
+          modules =
+            let
+              # from https://github.com/input-output-hk/haskell.nix/issues/298#issuecomment-767936405
+              forAllProjectPackages = cfg: args@{ lib, ... }: {
+                options.packages = lib.mkOption {
+                  type = lib.types.attrsOf (lib.types.submodule ({ config, ... }: {
+                    config = lib.mkIf config.package.isProject (cfg args);
+                  }));
+                };
+              };
+            in
+            [
+              (forAllProjectPackages (_: {
+                ghcOptions = [ "-Werror" ];
+              }))
+            ];
           shell = {
             tools = {
               cabal = "latest";
               haskell-language-server = {
-                src = inputs.haskellNix.inputs."hls-2.0";
+                src = inputs.haskellNix.inputs."hls-2.4";
                 configureArgs = "--disable-benchmarks --disable-tests";
               };
             };
