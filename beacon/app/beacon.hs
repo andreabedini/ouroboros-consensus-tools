@@ -527,7 +527,7 @@ parseOpts =   BenchmarksCompareOptions
           strOption
             ( mconcat
               [ long name
-              , help ("Compiler version (eg \"haskell810\", \"haskell92\", \"haskell96\". See the 'ouroboros-consensus' 'nix' setup for options. ")
+              , help ("Compiler version (eg \"haskell810\", \"haskell96\". See the 'ouroboros-consensus' 'nix' setup for options. ")
                 <> metavar "GHC_VERSION"
               ]
             )
