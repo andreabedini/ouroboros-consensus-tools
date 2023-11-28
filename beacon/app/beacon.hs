@@ -53,7 +53,7 @@ module Main (main) where
 
 import           Control.Arrow ((>>>))
 import           Control.Exception (assert, bracket_)
-import           Control.Monad (unless)
+import           Control.Monad (unless, when)
 import           Control.Monad.Extra (ifM, unlessM)
 import qualified Data.ByteString.Lazy as BL
 import           Data.Char (ord)
@@ -94,21 +94,30 @@ data BenchmarksCompareOptions = BenchmarksCompareOptions {
         -- node from source and run it from the `cardano-node` directory this
         -- path would point to this directory.
       , nodeHome           :: !FilePath
-      -- | path for the config.json file. This is relative to @nodeHome@. When
-      -- not present this defaults to
-      -- "/configuration/cardano/mainnet-config.json"
+        -- | path for the config.json file. This is relative to @nodeHome@. When
+        -- not present this defaults to
+        -- "/configuration/cardano/mainnet-config.json"
       , configPath         :: !FilePath
-      -- | path for the db passed to db-analyzer. This is relative to
-      -- @nodeHome@. When not present this defaults to "/mainnet/db"
+        -- | path for the db passed to db-analyzer. This is relative to
+        -- @nodeHome@. When not present this defaults to "/mainnet/db"
       , dbPath             :: !FilePath
       , analyseFromSlot    :: !Int
       , numBlocksToProcess :: !Int
         -- | Whether to overwrite the CSV files that 'db-analyser' produces.
       , overwriteData      :: !OverwriteData
+        -- | Whether to the plot the CSV files that 'db-analyser' produces.
+      , doPlotting         :: !ShouldEmitPlots
     }
 
 -- | Should the program overwrite the benchmark data?
 data OverwriteData = OverwriteData | DoNotOverwriteData
+
+-- | Should the program plot the benchmark data?
+data ShouldEmitPlots = EmitPlots | DoNotEmitPlots
+  deriving Eq
+
+emitPlots :: BenchmarksCompareOptions -> Bool
+emitPlots = (EmitPlots ==) . doPlotting
 
 --------------------------------------------------------------------------------
 -- Entry point
@@ -134,7 +143,6 @@ main = do
       -- TODO: show a couple of differences.
 
     compareMeasurements opts mut_forecast csvA csvB
-
     compareMeasurements opts mut_blockApply csvA csvB
 
 --------------------------------------------------------------------------------
@@ -280,7 +288,8 @@ compareMeasurements opts header csvA csvB = do
                  $ filterSlots (\v -> v <= -threshold || v >= threshold ) abRelChange
     -- TODO: We might avoid an 'n * log n' runtime if we augment the CSV file with the relative change.
 
-    plotMeasurements
+    when (emitPlots opts) $
+      plotMeasurements
       (ChartTitle (Text.unpack header))
       header
       (Just outliers)
@@ -512,6 +521,7 @@ parseOpts =   BenchmarksCompareOptions
           <*> parseAnalyseFrom
           <*> parseNumBlocksToProcess
           <*> parseOverwriteData
+          <*> parseDoPlotting
   where
     parseVersion :: String -> Parser Version
     parseVersion name =  Version
@@ -576,3 +586,10 @@ parseOpts =   BenchmarksCompareOptions
                          [ long "overwrite-data"
                          , help "Overwrite previous benchmark data"
                          ]
+
+    parseDoPlotting :: Parser ShouldEmitPlots
+    parseDoPlotting = flag DoNotEmitPlots EmitPlots
+                      $ mconcat
+                      [ long "do-plotting"
+                      , help "Whether to plot and compare db-analyser data, or not."
+                      ]
