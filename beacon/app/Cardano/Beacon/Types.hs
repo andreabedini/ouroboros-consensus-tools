@@ -1,7 +1,8 @@
-{-# LANGUAGE DeriveGeneric     #-}
-{-# LANGUAGE DerivingVia       #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards   #-}
+{-# LANGUAGE DeriveGeneric      #-}
+{-# LANGUAGE DerivingVia        #-}
+{-# LANGUAGE OverloadedStrings  #-}
+{-# LANGUAGE RecordWildCards    #-}
+{-# LANGUAGE StandaloneDeriving #-}
 
 module Cardano.Beacon.Types (
     module Cardano.Beacon.Types
@@ -9,10 +10,12 @@ module Cardano.Beacon.Types (
   ) where
 
 
+import           Cabal.Plan (PkgName, Ver)
 import           Cardano.Beacon.SlotDataPoint (SortedDataPoints)
 import           Control.Applicative ((<|>))
 import           Data.Aeson
 import           Data.List (intercalate)
+import           Data.Map (Map)
 import           Data.Text as Text (Text)
 import qualified Data.Text as T (unpack)
 import           Data.Time.Clock (UTCTime)
@@ -72,20 +75,28 @@ instance ToJSON Version where
 instance FromJSON Version where
   parseJSON = genericParseJSON aesonNoTagFields
 
+newtype Manifest = Manifest (Map PkgName Ver)
+  deriving (Show, Generic)
+
 data InstallInfo = InstallInfo
-  { installPath    :: FilePath
-  , installNixPath :: FilePath
-  , installVersion :: Version
+  { installExePath  :: FilePath
+  , installPlanPath :: FilePath
+  , installNixPath  :: FilePath
+  , installVersion  :: Version
   }
   deriving Show
 
+deriving via (Map PkgName Ver) instance ToJSON Manifest
+deriving via (Map PkgName Ver) instance FromJSON Manifest
+
 data BeaconRunMeta = BeaconRunMeta {
-    commit  :: CommitInfo
-  , version :: Version
-  , chain   :: ChainName
-  , nixPath :: FilePath
-  , host    :: String
-  , date    :: UTCTime
+    commit   :: CommitInfo
+  , version  :: Version
+  , chain    :: ChainName
+  , nixPath  :: FilePath
+  , host     :: String
+  , date     :: UTCTime
+  , manifest :: Manifest
   }
   deriving (Show, Generic)
 
