@@ -11,4 +11,5 @@ dist-newstyle/
 dist/
 
 # beacon default data directory
-beacon-data/
+beacon-data/result-*
+result*

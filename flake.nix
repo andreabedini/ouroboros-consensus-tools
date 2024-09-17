@@ -2,14 +2,7 @@
   inputs = {
     nixpkgs.follows = "haskellNix/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    haskellNix = {
-      url = "github:input-output-hk/haskell.nix";
-      inputs.hackage.follows = "hackageNix";
-    };
-    hackageNix = {
-      url = "github:input-output-hk/hackage.nix";
-      flake = false;
-    };
+    haskellNix.url = "github:input-output-hk/haskell.nix";
     CHaP = {
       url = "github:intersectmbo/cardano-haskell-packages?ref=repo";
       flake = false;
@@ -27,8 +20,9 @@
         #"aarch64-linux" # no CI machines yet
         "aarch64-darwin"
       ];
-    in
-    inputs.flake-utils.lib.eachSystem supportedSystems (system:
+      inherit (inputs.nixpkgs) lib;
+
+    in inputs.flake-utils.lib.eachSystem supportedSystems (system:
       let
         pkgs = import inputs.nixpkgs {
           inherit system;
@@ -41,34 +35,32 @@
         };
         inherit (pkgs) lib;
 
-        defaultCompiler = "ghc963";
+        defaultCompiler = "ghc966";
+
         cabalProject = pkgs.haskell-nix.cabalProject' {
           src = ./.;
           compiler-nix-name = defaultCompiler;
           inputMap = {
-            "https://input-output-hk.github.io/cardano-haskell-packages" = inputs.CHaP;
+            "https://input-output-hk.github.io/cardano-haskell-packages" =
+              inputs.CHaP;
           };
-          modules =
-            let
-              # from https://github.com/input-output-hk/haskell.nix/issues/298#issuecomment-767936405
-              forAllProjectPackages = cfg: args@{ lib, ... }: {
+          modules = let
+            # from https://github.com/input-output-hk/haskell.nix/issues/298#issuecomment-767936405
+            forAllProjectPackages = cfg:
+              args@{ lib, ... }: {
                 options.packages = lib.mkOption {
-                  type = lib.types.attrsOf (lib.types.submodule ({ config, ... }: {
-                    config = lib.mkIf config.package.isProject (cfg args);
-                  }));
+                  type = lib.types.attrsOf (lib.types.submodule
+                    ({ config, ... }: {
+                      config = lib.mkIf config.package.isProject (cfg args);
+                    }));
                 };
               };
-            in
-            [
-              (forAllProjectPackages (_: {
-                ghcOptions = [ "-Werror" ];
-              }))
-            ];
+          in [ (forAllProjectPackages (_: { ghcOptions = [ "-Werror" ]; })) ];
           shell = {
             tools = {
               cabal = "latest";
               haskell-language-server = {
-                src = inputs.haskellNix.inputs."hls-2.4";
+                src = inputs.haskellNix.inputs."hls-2.9";
                 configureArgs = "--disable-benchmarks --disable-tests";
               };
             };
@@ -78,32 +70,38 @@
               pkgs.stylish-haskell
               pkgs.haskellPackages.cabal-fmt
               pkgs.nixpkgs-fmt
+              pkgs.just
             ];
             withHoogle = true;
           };
         };
         flake = lib.recursiveUpdate cabalProject.flake' {
           # add formatting checks to Hydra CI, but only for one system
-          hydraJobs.formatting =
-            lib.optionalAttrs (system == "x86_64-linux")
-              (import ./nix/formatting.nix pkgs);
+          hydraJobs.formatting = lib.optionalAttrs (system == "x86_64-linux")
+            (import ./nix/formatting.nix pkgs);
         };
-      in
-      lib.recursiveUpdate flake {
+      in lib.recursiveUpdate flake {
         project = cabalProject;
+        packages.default = flake.packages."beacon:exe:beacon";
         hydraJobs.required = pkgs.releaseTools.aggregate {
           name = "required-consensus-tools";
           constituents = lib.collect lib.isDerivation flake.hydraJobs;
         };
-      }
-    );
+      }) // {
+        nixosConfigurations.default = lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [ ./nixos ];
+        };
+        nixosConfigurations.container = lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [ ./nixos ./nixos/modules/nspawn.nix ];
+        };
+
+      };
   nixConfig = {
-    extra-substituters = [
-      "https://cache.iog.io"
-    ];
-    extra-trusted-public-keys = [
-      "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ="
-    ];
+    extra-substituters = [ "https://cache.iog.io" ];
+    extra-trusted-public-keys =
+      [ "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=" ];
     allow-import-from-derivation = true;
   };
 }
