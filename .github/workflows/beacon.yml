@@ -33,6 +33,6 @@ jobs:
 
       - uses: DeterminateSystems/magic-nix-cache-action@v8
 
-      - run: nix build github:${{ github.repository }}/${{ github.sha }} --out-link beacon
+      - run: nix build github:${{ github.repository }}/${{ github.sha }}
 
-      - run: ./beacon build --rev ${{ inputs.rev }} ${{ inputs.ghc != null && format('--ghc {0}', inputs.ghc) || '' }}
+      - run: result/bin/beacon build --rev ${{ inputs.rev }} ${{ inputs.ghc != null && format('--ghc {0}', inputs.ghc) || '' }}
