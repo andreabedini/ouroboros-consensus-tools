@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v0.26.1
+        uses: DeterminateSystems/nix-installer-action@v14
         with:
           extra-conf: accept-flake-config = true
 
