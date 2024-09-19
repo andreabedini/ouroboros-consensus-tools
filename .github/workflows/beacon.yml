@@ -23,10 +23,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v14
+      - uses: DeterminateSystems/nix-installer-action@v14
         with:
-          extra-conf: accept-flake-config = true
+          extra-conf: |
+            accept-flake-config = true
+            allow-import-from-derivation = true
+            extra-substituters = https://cache.iog.io
+            extra-trusted-public-keys = hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
+
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
 
       - run: nix build github:${{ github.repository }}/${{ github.sha }} --out-link beacon
 
