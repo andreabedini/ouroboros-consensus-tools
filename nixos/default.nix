@@ -20,6 +20,10 @@ in {
     mountHostNixStore = true;
     writableStore = true;
     writableStoreUseTmpfs = false;
+    sharedDirectories.beacon-data= {
+      source = "/home/andrea/work/ouroboros-consensus-tools/beacon-data";
+      target = "/mnt/beacon-data";
+    };
   };
 
   services.github-runners.${slug} = {

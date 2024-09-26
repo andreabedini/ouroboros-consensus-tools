@@ -34,11 +34,13 @@ jobs:
       # - uses: DeterminateSystems/magic-nix-cache-action@v8
 
       - run: |
+          printenv
+          ls -l /
+          ls -l /mnt/
+          ls -l /mnt/beacon-data
+
+      - run: |
           nix build github:${{ github.repository }}/${{ github.sha }}
 
       - run: |
-          printenv
-          ls -l /
-
-      - run: |
-          result/bin/beacon --data-dir /beacon-data build --rev ${{ inputs.rev }}
+          result/bin/beacon --data-dir /mnt/beacon-data build --rev ${{ inputs.rev }}
