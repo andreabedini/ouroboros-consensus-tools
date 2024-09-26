@@ -18,6 +18,7 @@
       url = "github:input-output-hk/iohk-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixos-2405.url = "github:NixOS/nixpkgs/nixos-24.05";
   };
   outputs = inputs:
     let
@@ -72,12 +73,12 @@
               };
             };
             nativeBuildInputs = [
-              pkgs.ghcid
               pkgs.fd
-              pkgs.stylish-haskell
+              pkgs.ghcid
               pkgs.haskellPackages.cabal-fmt
-              pkgs.nixpkgs-fmt
               pkgs.just
+              pkgs.nixpkgs-fmt
+              pkgs.stylish-haskell
             ];
             withHoogle = true;
           };
@@ -95,11 +96,13 @@
           constituents = lib.collect lib.isDerivation flake.hydraJobs;
         };
       }) // {
-        nixosConfigurations.default = lib.nixosSystem {
+        nixosConfigurations.default = inputs.nixos-2405.lib.nixosSystem {
+          pkgs = inputs.nixos-2405.legacyPackages.x86_64-linux;
           system = "x86_64-linux";
           modules = [ ./nixos ];
         };
-        nixosConfigurations.container = lib.nixosSystem {
+        nixosConfigurations.container = inputs.nixos-2405.lib.nixosSystem {
+          pkgs = inputs.nixos-2405.legacyPackages.x86_64-linux;
           system = "x86_64-linux";
           modules = [ ./nixos ./nixos/modules/nspawn.nix ];
         };

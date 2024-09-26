@@ -23,6 +23,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # - uses: actions/cache@v4
+      #   with:
+      #     path: /nix
+      #     key: 1
+
+      # - uses: cachix/install-nix-action@v27
+      #   with:
+      #     github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      #     extra_nix_config: |
+      #       accept-flake-config = true
+      #       allow-import-from-derivation = true
+      #       extra-substituters = https://cache.iog.io
+      #       extra-trusted-public-keys = hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
+
       - uses: DeterminateSystems/nix-installer-action@v14
         with:
           extra-conf: |
@@ -33,6 +47,12 @@ jobs:
 
       - uses: DeterminateSystems/magic-nix-cache-action@v8
 
-      - run: nix build github:${{ github.repository }}/${{ github.sha }}
+      - run: |
+          nix build github:${{ github.repository }}/${{ github.sha }}
 
-      - run: result/bin/beacon build --rev ${{ inputs.rev }} ${{ inputs.ghc != null && format('--ghc {0}', inputs.ghc) || '' }}
+      - run: |
+          printenv
+          ls -l /
+
+      - run: |
+          result/bin/beacon --data-dir /beacon-data build --rev ${{ inputs.rev }}
