@@ -43,4 +43,4 @@ jobs:
           nix build github:${{ github.repository }}/${{ github.sha }}
 
       - run: |
-          result/bin/beacon --data-dir /mnt/beacon-data build --rev ${{ inputs.rev }}
+          result/bin/beacon --data-dir $STATE_DIRECTORY/beacon-data build --rev ${{ inputs.rev }}

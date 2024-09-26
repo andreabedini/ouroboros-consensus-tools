@@ -35,7 +35,7 @@ in {
     serviceOverrides.LoadCredential = [ "token" ];
 
     # flock
-    extraPackages = [ pkgs.util-linux ];
+    extraPackages = [ pkgs.curl pkgs.util-linux ];
 
     extraEnvironment.ACTIONS_RUNNER_HOOK_JOB_STARTED =
       pkgs.writeShellScript "job-started-hook.sh" ''
