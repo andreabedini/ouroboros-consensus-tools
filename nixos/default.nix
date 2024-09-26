@@ -14,8 +14,13 @@ in {
     extra-trusted-public-keys = "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=";
   };
 
-  virtualisation.writableStore = true;
-  virtualisation.mountHostNixStore = true;
+  virtualisation = {
+    diskSize = 64*1024;
+    memorySize = 4096;
+    mountHostNixStore = true;
+    writableStore = true;
+    writableStoreUseTmpfs = false;
+  };
 
   services.github-runners.${slug} = {
     enable = true;
