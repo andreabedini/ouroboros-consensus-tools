@@ -23,29 +23,15 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      # - uses: actions/cache@v4
+      # - uses: DeterminateSystems/nix-installer-action@v14
       #   with:
-      #     path: /nix
-      #     key: 1
-
-      # - uses: cachix/install-nix-action@v27
-      #   with:
-      #     github_access_token: ${{ secrets.GITHUB_TOKEN }}
-      #     extra_nix_config: |
+      #     extra-conf: |
       #       accept-flake-config = true
       #       allow-import-from-derivation = true
       #       extra-substituters = https://cache.iog.io
       #       extra-trusted-public-keys = hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
-
-      - uses: DeterminateSystems/nix-installer-action@v14
-        with:
-          extra-conf: |
-            accept-flake-config = true
-            allow-import-from-derivation = true
-            extra-substituters = https://cache.iog.io
-            extra-trusted-public-keys = hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
-
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
+      #
+      # - uses: DeterminateSystems/magic-nix-cache-action@v8
 
       - run: |
           nix build github:${{ github.repository }}/${{ github.sha }}
