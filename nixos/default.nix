@@ -1,8 +1,9 @@
-{ lib, pkgs, ... }:
+{ lib, pkgs, modulesPath, ... }:
 let
   repo = "andreabedini/ouroboros-consensus-tools";
   slug = lib.strings.replaceStrings [ "/" ] [ "-" ] repo;
 in {
+  imports = [ "${modulesPath}/virtualisation/qemu-vm.nix"];
   services.getty.autologinUser = "root";
 
   nix.settings = {
@@ -12,6 +13,9 @@ in {
     extra-substituters = "https://cache.iog.io";
     extra-trusted-public-keys = "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=";
   };
+
+  virtualisation.writableStore = true;
+  virtualisation.mountHostNixStore = true;
 
   services.github-runners.${slug} = {
     enable = true;
