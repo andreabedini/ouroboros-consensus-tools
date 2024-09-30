@@ -3,7 +3,7 @@ let
   repo = "andreabedini/ouroboros-consensus-tools";
   slug = lib.strings.replaceStrings [ "/" ] [ "-" ] repo;
 in {
-  imports = [ "${modulesPath}/virtualisation/qemu-vm.nix"];
+  imports = [ "${modulesPath}/virtualisation/qemu-vm.nix" ];
   services.getty.autologinUser = "root";
 
   nix.settings = {
@@ -11,16 +11,17 @@ in {
     allow-import-from-derivation = true;
     extra-experimental-features = [ "nix-command flakes" ];
     extra-substituters = "https://cache.iog.io";
-    extra-trusted-public-keys = "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=";
+    extra-trusted-public-keys =
+      "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=";
   };
 
   virtualisation = {
-    diskSize = 64*1024;
+    diskSize = 64 * 1024;
     memorySize = 4096;
     mountHostNixStore = true;
     writableStore = true;
     writableStoreUseTmpfs = false;
-    sharedDirectories.beacon-data= {
+    sharedDirectories.beacon-data = {
       source = "/home/andrea/work/ouroboros-consensus-tools/beacon-data";
       target = "/mnt/beacon-data";
     };
@@ -37,22 +38,22 @@ in {
     # flock
     extraPackages = [ pkgs.curl pkgs.util-linux ];
 
-    extraEnvironment.ACTIONS_RUNNER_HOOK_JOB_STARTED =
-      pkgs.writeShellScript "job-started-hook.sh" ''
-        set -e
-        TIMEOUT_SECS=$(( 60*60 ))
-        LOCKFILE=/tmp/workbench.lock
-
-        echo "ourboros-consensus-tools"
-        echo "Data directory: $STATE_DIRECTORY"
-        echo "Lockfile: $LOCKFILE"
-
-        echo "Waiting for lock."
-        exec 4<>$LOCKFILE
-        flock --verbose --wait "$TIMEOUT_SECS" 4
-        echo "Lock acquired."
-      '';
-
+    # extraEnvironment.ACTIONS_RUNNER_HOOK_JOB_STARTED =
+    #   pkgs.writeShellScript "job-started-hook.sh" ''
+    #     set -e
+    #     TIMEOUT_SECS=$(( 60*60 ))
+    #     LOCKFILE=/tmp/workbench.lock
+    #
+    #     echo "ourboros-consensus-tools"
+    #     echo "Data directory: $STATE_DIRECTORY"
+    #     echo "Lockfile: $LOCKFILE"
+    #
+    #     echo "Waiting for lock."
+    #     exec 4<>$LOCKFILE
+    #     flock --verbose --wait "$TIMEOUT_SECS" 4
+    #     echo "Lock acquired."
+    #   '';
+    #
     # extraEnvironment.ACTIONS_RUNNER_HOOK_JOB_COMPLETED =
     #   pkgs.writeShellScript "job-started-hook.sh" ''
     #     echo "XXXXX Job completed"

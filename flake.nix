@@ -76,7 +76,6 @@
               pkgs.fd
               pkgs.ghcid
               pkgs.haskellPackages.cabal-fmt
-              pkgs.just
               pkgs.nixpkgs-fmt
               pkgs.stylish-haskell
             ];
