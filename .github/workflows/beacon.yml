@@ -21,7 +21,7 @@ jobs:
   beacon:
     defaults:
       run:
-        shell: ./scripts/acquire-lock.sh
+        shell: ${{ github.workspace }}/scripts/acquire-lock.sh
 
     name: Run beacon
     runs-on: self-hosted
