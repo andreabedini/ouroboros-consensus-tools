@@ -39,8 +39,12 @@
       tokenFile = "/run/credentials/github-runner-${slug}.service/token";
       serviceOverrides.LoadCredential = [ "token" ];
 
-      # flock is provided by util-linux
-      extraPackages = [ pkgs.curl pkgs.util-linux ];
+      extraPackages = [
+        # used by beacon itself
+        pkgs.curl
+        # flock is provided by util-linux
+        pkgs.util-linux
+      ];
 
       # NOTE: This might need to be changed
       extraEnvironment.BEACON_DATA = "/mnt/beacon-data";
