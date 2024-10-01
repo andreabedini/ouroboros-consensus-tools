@@ -28,7 +28,7 @@ jobs:
     env:
       LOCKFILE: /tmp/workbench.lock
       LOCK_TIMEOUT: "3600" # seconds (1 hour)
-      BEACON: result/bin/beacon --data-dir /mnt/beacon-data
+      BEACON: result/bin/beacon --data-dir $BEACON_DATA
 
     steps:
       - run: |

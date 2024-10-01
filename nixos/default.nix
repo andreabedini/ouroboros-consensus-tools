@@ -1,8 +1,7 @@
-{ lib, pkgs, modulesPath, ... }:
-let
-  repo = "andreabedini/ouroboros-consensus-tools";
-  slug = lib.strings.replaceStrings [ "/" ] [ "-" ] repo;
-in {
+{ lib, pkgs, modulesPath, ... }: {
+
+  # General NixOS configuration
+
   imports = [ "${modulesPath}/virtualisation/qemu-vm.nix" ];
   services.getty.autologinUser = "root";
 
@@ -15,25 +14,36 @@ in {
       "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=";
   };
 
+  # This is only needed for testing the runner and the workflow
+
   virtualisation = {
     diskSize = 64 * 1024;
     memorySize = 4096;
     mountHostNixStore = true;
     writableStore = true;
     writableStoreUseTmpfs = false;
-    sharedDirectories.beacon-data = {
-      source = "/home/andrea/work/ouroboros-consensus-tools/beacon-data";
-      target = "/mnt/beacon-data";
-    };
   };
 
-  services.github-runners.${slug} = {
-    enable = true;
-    replace = true;
+  # This is the GitHub runner configuration
 
-    url = "https://github.com/${repo}";
-    tokenFile = "/run/credentials/github-runner-${slug}.service/token";
-    serviceOverrides.LoadCredential = [ "token" ];
-    extraPackages = [ pkgs.curl pkgs.util-linux ];
+  services.github-runners = let
+    # NOTE: This needs to be changed
+    repo = "andreabedini/ouroboros-consensus-tools";
+    slug = lib.strings.replaceStrings [ "/" ] [ "-" ] repo;
+  in {
+    ${slug} = {
+      enable = true;
+      replace = true;
+
+      url = "https://github.com/${repo}";
+      tokenFile = "/run/credentials/github-runner-${slug}.service/token";
+      serviceOverrides.LoadCredential = [ "token" ];
+
+      # flock is provided by util-linux
+      extraPackages = [ pkgs.curl pkgs.util-linux ];
+
+      # NOTE: This might need to be changed
+      extraEnvironment.BEACON_DATA = "/mnt/beacon-data";
+    };
   };
 }
