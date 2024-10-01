@@ -31,8 +31,8 @@ jobs:
       BEACON: result/bin/beacon --data-dir $BEACON_DATA
 
     steps:
-      - run: |
-          nix build github:${{ github.repository }}/${{ github.sha }}
+      - run: printenv
+      - run: nix build github:${{ github.repository }}/${{ github.sha }}
 
       - run: $BEACON build --rev ${{ inputs.rev }}
 
