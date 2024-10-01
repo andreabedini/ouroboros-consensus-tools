@@ -15,3 +15,4 @@ Tools related to the [Consensus](https://github.com/input-output-hk/ouroboros-co
 `gh` is used to obtain a registration token for the runner.
 * Use `gh repo set-default` to set the repository associated with the runner.
 * Start the virtual machine with `make start-vm`
+* Use `gh workflow run beacon` to run the workflow. E.g. `gh workflow run beacon --field name=default-xs-811`.
