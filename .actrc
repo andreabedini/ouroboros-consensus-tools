@@ -1,6 +1,0 @@
--P ubuntu-20.04=ghcr.io/catthehacker/ubuntu:runner-20.04
--P ubuntu-22.04=ghcr.io/catthehacker/ubuntu:runner-22.04
--P ubuntu-latest=ghcr.io/catthehacker/ubuntu:runner-latest
---use-new-action-cache
---artifact-server-path=$HOME/.local/state/act/artifacts
---container-options=-v$PWD/beacon-data:/beacon-data
