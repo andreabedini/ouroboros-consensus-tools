@@ -16,25 +16,27 @@ on:
         description: Compiler version
         type: string
         required: false
+      name:
+        description: Chain fragment name to run on
+        type: string
+        required: true
 
 jobs:
   beacon:
-    defaults:
-      run:
-        shell: ${{ github.workspace }}/scripts/acquire-lock.sh
-
     name: Run beacon
     runs-on: self-hosted
+    env:
+      LOCKFILE: /tmp/workbench.lock
+      LOCK_TIMEOUT: "3600" # seconds (1 hour)
+      BEACON: result/bin/beacon --data-dir $STATE_DIRECTORY/beacon-data
 
     steps:
       - run: |
-          printenv
-          ls -l /
-          ls -l /mnt/
-          ls -l /mnt/beacon-data
-
-      - run: |
           nix build github:${{ github.repository }}/${{ github.sha }}
 
+      - run: $BEACON build --rev ${{ inputs.rev }}
+
       - run: |
-          result/bin/beacon --data-dir $STATE_DIRECTORY/beacon-data build --rev ${{ inputs.rev }}
+          echo "Waiting for lock on $LOCKFILE..."
+          flock --wait "$TIMEOUT_SECS" "$LOCKFILE" --
+            $BEACON build --rev ${{ inputs.rev }} --name ${{ inputs.name }}

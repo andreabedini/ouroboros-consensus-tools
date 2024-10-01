@@ -6,7 +6,7 @@ gh-auth-status:
 
 .PHONY: get-new-token
 get-new-token:
-	@echo "Obtaining registration token for $$(gh repo set-default --view)" >/dev/stderr
+	@echo "Obtaining registration token for $$(gh repo set-default --view)" >&2
 	@gh api --method POST -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" --jq .token /repos/{owner}/{repo}/actions/runners/registration-token
 
 build-vm:
