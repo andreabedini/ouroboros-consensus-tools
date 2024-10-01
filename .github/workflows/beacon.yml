@@ -28,15 +28,16 @@ jobs:
     env:
       LOCKFILE: /tmp/workbench.lock
       LOCK_TIMEOUT: "3600" # seconds (1 hour)
-      BEACON: result/bin/beacon --data-dir $BEACON_DATA
 
     steps:
       - run: printenv
-      - run: nix build github:${{ github.repository }}/${{ github.sha }}
+      - run: |
+          nix build github:${{ github.repository }}/${{ github.sha }} -o result
+          echo $PWD/result/bin >> $GITHUB_PATH
 
-      - run: $BEACON build --rev ${{ inputs.rev }}
+      - run: beacon --data-dir $BEACON_DATA build --rev ${{ inputs.rev }}
 
       - run: |
           echo "Waiting for lock on $LOCKFILE..."
           flock --wait "$TIMEOUT_SECS" "$LOCKFILE" --
-            $BEACON build --rev ${{ inputs.rev }} --name ${{ inputs.name }}
+            beacon --data-dir $BEACON_DATA run --rev ${{ inputs.rev }} --name ${{ inputs.name }}
