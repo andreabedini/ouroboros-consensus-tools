@@ -100,12 +100,6 @@
           system = "x86_64-linux";
           modules = [ ./nixos ];
         };
-        nixosConfigurations.container = inputs.nixos-2405.lib.nixosSystem {
-          pkgs = inputs.nixos-2405.legacyPackages.x86_64-linux;
-          system = "x86_64-linux";
-          modules = [ ./nixos ./nixos/modules/nspawn.nix ];
-        };
-
       };
   nixConfig = {
     extra-substituters = [ "https://cache.iog.io" ];
